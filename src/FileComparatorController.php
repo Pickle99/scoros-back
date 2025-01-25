@@ -27,8 +27,8 @@ class FileComparatorController
 
         if ($result) {
             echo json_encode([
-                "output_file1" => "files/" . $result['file1'],
-                "output_file2" => "files/" . $result['file2'],
+                "output_file1" => $result['file1'],
+                "output_file2" => $result['file2'],
             ]);
         } else {
             http_response_code(500);
