@@ -9,19 +9,26 @@ class FileComparator
      *
      * @param string $file1Path Path to the first file.
      * @param string $file2Path Path to the second file.
+     * @param string $sortOrder Either 'top' or 'bottom' to determine special characters' position.
      * @return array Array containing the paths to the output files.
      */
-    public function compareFiles($file1Path, $file2Path)
+    public function compareFiles($file1Path, $file2Path, $sortOrder = "top")
     {
         $file1 = file($file1Path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $file2 = file($file2Path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $sortOrder = $_POST['sortOrder'] ?? "top";
+
 
         if ($file1 === false || $file2 === false) {
             return false;
         }
-
-        sort($file1);
-        sort($file2);
+ 
+        usort($file1, function ($a, $b) use ($sortOrder) {
+            return $this->compareStrings($a, $b, $sortOrder);
+        });
+        usort($file2, function ($a, $b) use ($sortOrder) {
+            return $this->compareStrings($a, $b, $sortOrder);
+        });
 
         $uniqueToFile1 = array_diff($file1, $file2);
         $uniqueToFile2 = array_diff($file2, $file1);
@@ -37,4 +44,30 @@ class FileComparator
             'file2' => $file2OutputPath
         ];
     }
+
+    private function compareStrings($a, $b, $sortOrder)
+    {
+        $isAlphaNumericA = ctype_alnum($a);
+        $isAlphaNumericB = ctype_alnum($b);
+    
+        if ($sortOrder === 'bottom') {
+            if ($isAlphaNumericA && !$isAlphaNumericB) {
+                return -1;
+            }
+            if (!$isAlphaNumericA && $isAlphaNumericB) {
+                return 1;
+            }
+        } else {
+            if ($isAlphaNumericA && !$isAlphaNumericB) {
+                return 1;
+            }
+            if (!$isAlphaNumericA && $isAlphaNumericB) {
+                return -1;
+            }
+        }
+
+        return strcmp($a, $b);
+    }
+    
+    
 }
