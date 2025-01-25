@@ -21,7 +21,7 @@ class FileComparator
     
         $file1 = file($file1Path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $file2 = file($file2Path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $sortOrder = $_POST['sortOrder'] ?? "top";
+        $sortOrder = $_POST['sortOrder'] ?? "top"; 
     
         if ($file1 === false || $file2 === false) {
             return false; 
@@ -37,10 +37,15 @@ class FileComparator
         $uniqueToFile1 = array_diff($file1, $file2);
         $uniqueToFile2 = array_diff($file2, $file1);
     
-
+        if (empty($uniqueToFile1) && empty($uniqueToFile2)) {
+            return [
+                'message' => 'Nothing unique has been found, both files are the same.'
+            ];
+        }
+    
         $file1OutputPath = 'files/output_file1.txt';
         $file2OutputPath = 'files/output_file2.txt';
-
+    
         file_put_contents($file1OutputPath, implode(PHP_EOL, $uniqueToFile1));
         file_put_contents($file2OutputPath, implode(PHP_EOL, $uniqueToFile2));
     
@@ -49,6 +54,7 @@ class FileComparator
             'file2' => $file2OutputPath
         ];
     }
+    
     
 
     private function compareStrings($a, $b, $sortOrder)
