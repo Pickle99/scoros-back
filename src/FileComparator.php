@@ -14,36 +14,42 @@ class FileComparator
      */
     public function compareFiles($file1Path, $file2Path, $sortOrder = "top")
     {
+        $outputDirectory = 'files';
+        if (!is_dir($outputDirectory)) {
+            mkdir($outputDirectory, 0777, true);
+        }
+    
         $file1 = file($file1Path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $file2 = file($file2Path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $sortOrder = $_POST['sortOrder'] ?? "top";
-
-
+    
         if ($file1 === false || $file2 === false) {
-            return false;
+            return false; 
         }
- 
+    
         usort($file1, function ($a, $b) use ($sortOrder) {
             return $this->compareStrings($a, $b, $sortOrder);
         });
         usort($file2, function ($a, $b) use ($sortOrder) {
             return $this->compareStrings($a, $b, $sortOrder);
         });
-
+    
         $uniqueToFile1 = array_diff($file1, $file2);
         $uniqueToFile2 = array_diff($file2, $file1);
+    
 
         $file1OutputPath = 'files/output_file1.txt';
         $file2OutputPath = 'files/output_file2.txt';
 
         file_put_contents($file1OutputPath, implode(PHP_EOL, $uniqueToFile1));
         file_put_contents($file2OutputPath, implode(PHP_EOL, $uniqueToFile2));
-
+    
         return [
             'file1' => $file1OutputPath,
             'file2' => $file2OutputPath
         ];
     }
+    
 
     private function compareStrings($a, $b, $sortOrder)
     {
